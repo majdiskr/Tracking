@@ -25,6 +25,7 @@ from deep_sort.tracker import Tracker
 from tools import generate_clip_detections as gdet
 
 from utils.yolov5 import Yolov5Engine
+from utils.yolov4 import Yolov4Engine
 
 classes = []
 
@@ -103,6 +104,9 @@ def detect(save_img=False):
         yolov5_engine = Yolov5Engine(opt.weights, device, opt.classes, opt.confidence, opt.overlap, opt.agnostic_nms, opt.augment, half)
         global names
         names = yolov5_engine.get_names()
+    elif opt.detection_engine == "yolov4":
+        yolov4_engine = Yolov4Engine("./cfg/yolov4.cfg", opt.weights, "./cfg/coco.data", device, opt.classes, opt.confidence, opt.overlap, opt.agnostic_nms, opt.augment, half)
+        # need to load names
     # initialize tracker
     tracker = Tracker(metric)
 
@@ -150,9 +154,12 @@ def detect(save_img=False):
         if (opt.detection_engine == "roboflow"):
             pred, classes = predict_image(im0, opt.api_key, opt.url, opt.confidence, opt.overlap, frame_count)
             pred = [torch.tensor(pred)]
-        else:
+        elif (opt.detection_engine == "yolov5"):
             print("yolov5 inference")
             pred = yolov5_engine.infer(img)
+        elif (opt.detection_engine == "yolov4")
+            print("yolov4 inference")
+            pred = yolov4_engine.infer(img)
 
         t2 = time_synchronized()
 
@@ -313,6 +320,7 @@ if __name__ == '__main__':
     parser.add_argument('--info', action='store_true',
                         help='Print debugging info.')
     parser.add_argument("--detection-engine", default="roboflow", help="Which engine you want to use for object detection (yolov5, yolov4, roboflow).")
+
     opt = parser.parse_args()
     print(opt)
 
